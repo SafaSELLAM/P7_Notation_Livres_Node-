@@ -35,3 +35,13 @@ exports.deleteBook = (req, res, next) => {
     .catch((error) => res.status(400).json({ error }));
   next();
 };
+
+exports.getRatings = (req, res, next) => {
+  res.send("rating okay!");
+  next();
+};
+
+exports.postRatings = (req, res) => {
+  console.log(req.body);
+  res.status(201).json({ message: "ok!" });
+};

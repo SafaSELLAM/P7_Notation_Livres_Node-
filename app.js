@@ -29,35 +29,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.post("/api/auth/signup", (req, res, next) => {
-  console.log(req.body);
-  res.status(201).json({
-    message: "connecté!",
-  });
-  next();
-});
-
-app.post("/api/auth/login", (req, res, next) => {
-  console.log(req.body);
-  res.status(201).json({
-    message: "okay!",
-  });
-  next();
-});
-
-app.get("/api/books/bestrating", (req, res, next) => {
-  res.send("rating okay!");
-  next();
-});
-
-// auth requis
-
-app.post("/api/books/:id/rating", (req, res, next) => {
-  console.log(req.body);
-  res.status(201).json({ message: "ok!" });
-  next();
-});
-
 app.use("/api/books", bookRoutes);
 app.use("/api/auth", userRoutes);
+
 module.exports = app;
