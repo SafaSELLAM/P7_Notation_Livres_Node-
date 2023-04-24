@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const bookRoutes = require("./Routes/book");
+const userRoutes = require("./Routes/user");
 mongoose
   .connect(
     "mongodb+srv://User_20:UnzpLH3ghGvR8h1z@cluster0.hugilbo.mongodb.net/test",
@@ -58,4 +59,5 @@ app.post("/api/books/:id/rating", (req, res, next) => {
 });
 
 app.use("/api/books", bookRoutes);
+app.use("/api/auth", userRoutes);
 module.exports = app;
