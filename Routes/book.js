@@ -1,4 +1,5 @@
 const express = require("express");
+const auth = require("../middleware/auth");
 const router = express.Router();
 const bookCtrl = require("../controllers/book");
 
@@ -9,10 +10,10 @@ router.get("/bestrating", bookCtrl.getRatings);
 
 // auth requis
 
-router.post("/", bookCtrl.createBook);
-router.put("/:id", bookCtrl.updateBook);
-router.delete("/:id", bookCtrl.deleteBook);
+router.post("/", auth, bookCtrl.createBook);
+router.put("/:id", auth, bookCtrl.updateBook);
+router.delete("/:id", auth, bookCtrl.deleteBook);
 
-router.post("/:id/rating", bookCtrl.postRatings);
+router.post("/:id/rating", auth, bookCtrl.postRatings);
 
 module.exports = router;
