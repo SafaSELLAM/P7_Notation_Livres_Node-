@@ -1,7 +1,8 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const bookRoutes = require("./Routes/book");
 const userRoutes = require("./Routes/user");
+const bookRoutes = require("./Routes/book");
+const path = require("path");
 mongoose
   .connect(
     "mongodb+srv://User_20:UnzpLH3ghGvR8h1z@cluster0.hugilbo.mongodb.net/test",
@@ -29,7 +30,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/api/books", bookRoutes);
 app.use("/api/auth", userRoutes);
-
+app.use("/api/books", bookRoutes);
+app.use("/images", express.static(path.join(__dirname, "images")));
 module.exports = app;
