@@ -5,9 +5,9 @@ const multer = require("../middleware/multer-config");
 const bookCtrl = require("../controllers/book");
 
 router.get("/", bookCtrl.getAllBooks);
+router.get("/bestrating", bookCtrl.getRatings);
 router.get("/:id", bookCtrl.getOneBook);
 
-// router.get("/bestrating", bookCtrl.getRatings);
 
 // auth requis
 

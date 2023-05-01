@@ -89,10 +89,10 @@ exports.getRatings = (req, res) => {
   .sort({ averageRating: -1 })
   .limit(3)
   .then((books) => {
-    res.status(200).json(console.log(books));
+    res.status(200).json(books);
   })
   .catch((error) => {
-    res.status(400).json(console.log(error));
+    res.status(400).json(error);
   });
 };
 
