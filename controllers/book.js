@@ -84,33 +84,17 @@ exports.deleteBook = (req, res, next) => {
     });
 };
 
-// exports.getRatings = (req, res, next) => {
-//   // Utilisez la méthode aggregate de MongoDB pour regrouper les livres par leur ID et calculer la note moyenne pour chaque livre
-//   Book.aggregate([
-//     {
-//       $group: {
-//         _id: "$_id",
-//         title: { $first: "$title" },
-//         author: { $first: "$author" },
-//         imageUrl: { $first: "$imageUrl" },
-//         year: { $first: "$year" },
-//         genre: { $first: "$genre" },
-//         ratings: { $first: "$ratings" },
-//         averageRating: { $avg: "$ratings.grade" }, // calcule la note moyenne des ratings.grade pour chaque livre
-//       },
-//     },
-//     // Tri des livres par note moyenne décroissante
-//     { $sort: { averageRating: -1 } },
-//     // Limitation des résultats à 3 livres
-//     { $limit: 3 },
-//   ])
-//     .then((books) => {
-//       res.status(200).json(books);
-//     })
-//     .catch((error) => {
-//       res.status(500).json({ error });
-//     });
-// };
+exports.getRatings = (req, res) => {
+  Book.find()
+    .sort({ averageRating: -1 })
+    .limit(3)
+    .then((books) => {
+      res.status(200).json(books);
+    })
+    .catch((error) => {
+      res.status(400).json(error);
+    });
+};
 
 exports.postRating = (req, res) => {
   const userIdRatings = req.body.userId;
@@ -121,13 +105,6 @@ exports.postRating = (req, res) => {
   const decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
   const userId = decodedToken.userId;
 
-  // Vérifier si la note est comprise entre 0 et 5
-  if (grade < 0 || grade > 5) {
-    return res
-      .status(400)
-      .json({ message: "La note doit être comprise entre 0 et 5" });
-  }
-
   Book.findOne({ _id: req.params.id })
     .then((book) => {
       const alreadyRated = book.ratings.find(
@@ -137,11 +114,11 @@ exports.postRating = (req, res) => {
       if (alreadyRated || userId !== userIdRatings) {
         res.status(403).json({ message: "Livré déjà noté" });
       } else {
-        const totalRatings = book.ratings.reduce(
-          (acc, rated) => acc + rated.grade,
+        const totalRating = book.ratings.reduce(
+          (acc, rating) => acc + rating.grade,
           0
         );
-        const averageRating = totalRatings / book.ratings.length;
+        const averageRating = (totalRating + grade) / (book.ratings.length + 1);
         book.averageRating = averageRating;
         Book.updateOne(
           { _id: req.params.id },
@@ -151,7 +128,7 @@ exports.postRating = (req, res) => {
           }
         )
           .then(() => {
-            res.status(201).json({ message: "Note ajoutée" });
+            res.status(201).json({ message: "Note ajoutée avec succès" });
           })
           .catch((error) => {
             console.log(error);
