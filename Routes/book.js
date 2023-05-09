@@ -1,14 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/auth");
-// const { upload, resizeImage } = require("../middleware/multer-config");
 const multer = require("../middleware/multer-config");
 const bookCtrl = require("../controllers/book");
 
 router.get("/", bookCtrl.getAllBooks);
 router.get("/bestrating", bookCtrl.getRatings);
 router.post("/", auth, multer.upload, multer.resizeImage, bookCtrl.createBook);
-// router.post("/", auth, upload, resizeImage, bookCtrl.createBook);
 router.get("/:id", bookCtrl.getOneBook);
 
 router.put(
