@@ -36,6 +36,7 @@ exports.getOneBook = (req, res) => {
 };
 
 exports.updateBook = (req, res) => {
+  // 2 possibilités de modification : une avec modification image et l'autre sans.
   const bookObject = req.file
     ? {
         ...JSON.parse(req.body.book),
@@ -44,7 +45,7 @@ exports.updateBook = (req, res) => {
         }`,
       }
     : { ...req.body };
-
+  //eviter les modification par un utilisateur malveillant
   delete bookObject._userId;
 
   Book.findOne({ _id: req.params.id })
@@ -52,10 +53,10 @@ exports.updateBook = (req, res) => {
       if (book.userId != req.auth.userId) {
         res.status(403).json({ message: "unauthorized request" });
       } else {
-        //récupère le nom du fichier de l'image à supprimer
         if (req.file) {
-          // Supprimer l'ancienne image
+          //récupère le nom du fichier de l'image à supprimer
           const filename = book.imageUrl.split("/images")[1];
+          // Supprimer l'ancienne image
           fs.unlink(`images/${filename}`, () => {});
         }
 
@@ -110,7 +111,6 @@ exports.getRatings = (req, res) => {
 exports.postRating = (req, res) => {
   const userIdRatings = req.body.userId;
   const grade = req.body.rating;
-  console.log(userIdRatings, grade, req.params.id);
 
   Book.findOne({ _id: req.params.id })
     .then((book) => {
