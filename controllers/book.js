@@ -51,21 +51,18 @@ exports.updateBook = (req, res) => {
       if (book.userId != req.auth.userId) {
         res.status(403).json({ message: "unauthorized request" });
       } else {
+        //récupère le nom du fichier de l'image à supprimer
         const filename = book.imageUrl.split("/images")[1];
-        Book.updateOne(
-          { _id: req.params.id },
-          { ...bookObject, _id: req.params.id }
-        )
-          .then(() => {
-            fs.unlink(`images/${filename}`, (error) => {
-              if (error) {
-                console.log(error);
-              }
-            });
-
-            res.status(200).json({ message: "Livre Modifié!" });
-          })
-          .catch((error) => res.status(400).json({ error }));
+        fs.unlink(`images/${filename}`, () => {
+          Book.updateOne(
+            { _id: req.params.id },
+            { ...bookObject, _id: req.params.id }
+          )
+            .then(() => {
+              res.status(200).json({ message: "Livre Modifié!" });
+            })
+            .catch((error) => res.status(400).json({ error }));
+        });
       }
     })
     .catch((error) => {
