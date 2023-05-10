@@ -46,6 +46,7 @@ exports.updateBook = (req, res) => {
     : { ...req.body };
 
   delete bookObject._userId;
+
   Book.findOne({ _id: req.params.id })
     .then((book) => {
       if (book.userId != req.auth.userId) {
@@ -115,7 +116,7 @@ exports.postRating = (req, res) => {
       );
 
       if (alreadyRated || req.auth.userId !== userIdRatings) {
-        res.status(403).json({ message: "Livré déjà noté" });
+        res.status(403).json({ message: "non autorisé" });
       } else {
         const totalRating = book.ratings.reduce(
           (acc, rating) => acc + rating.grade,
