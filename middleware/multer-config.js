@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage }).single("image");
 
-// Middleware pour redimensionner l'image
+//  redimension l'image
 const resizeImage = async (req, res, next) => {
   if (!req.file) {
     return next();
@@ -28,12 +28,11 @@ const resizeImage = async (req, res, next) => {
 
   try {
     const imageBuffer = await sharp(req.file.path)
-      .resize(206)
+      .resize({ width: 206, height: 260, fit: "fill" })
       .jpeg({ quality: 80 })
       .toBuffer();
 
     await sharp(imageBuffer).toFile(`images/${req.file.filename}`);
-    await sharp(imageBuffer).toFile(`images/images_redim/${req.file.filename}`);
 
     next();
   } catch (error) {
