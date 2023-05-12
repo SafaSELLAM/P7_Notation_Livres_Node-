@@ -2,12 +2,17 @@ const Book = require("../models/Book");
 const fs = require("fs");
 
 exports.createBook = (req, res, next) => {
+  // Récupère l'objet book envoyé dans la requête sous forme de chaîne de caractères
   const bookObject = JSON.parse(req.body.book);
+  // Suppression de _id et _userId de l'objet book, pour éviter toute modification non autorisée
   delete bookObject._id;
   delete bookObject._userId;
+
   const book = new Book({
     ...bookObject,
+    //On s'assure de l'authentification du user
     userId: req.auth.userId,
+    // Enregistre l'URL de l'image en utilisant le protocole, le nom d'hôte et le nom de fichier généré
     imageUrl: `${req.protocol}://${req.get("host")}/images/${
       req.file.filename
     }`,
@@ -45,14 +50,15 @@ exports.updateBook = (req, res) => {
         }`,
       }
     : { ...req.body };
-  //eviter les modification par un utilisateur malveillant
+  //eviter les modifications par un utilisateur malveillant
   delete bookObject._userId;
-
+  //sélectionne le livre à modifier
   Book.findOne({ _id: req.params.id })
     .then((book) => {
       if (book.userId != req.auth.userId) {
         res.status(403).json({ message: "unauthorized request" });
       } else {
+        //si la modification concerne l'image
         if (req.file) {
           //récupère le nom du fichier de l'image à supprimer
           const filename = book.imageUrl.split("/images")[1];
@@ -76,13 +82,17 @@ exports.updateBook = (req, res) => {
 };
 
 exports.deleteBook = (req, res, next) => {
+  //sélectionne le livre à supprimer
   Book.findOne({ _id: req.params.id })
     .then((book) => {
+      //vérifie l'authentification du user
       if (book.userId != req.auth.userId) {
         res.status(401).json({ message: "unauthorized" });
       } else {
+        //supprime l'image du backend
         const filename = book.imageUrl.split("/images")[1];
         fs.unlink(`images/${filename}`, () => {
+          //supprime le livre
           Book.deleteOne({ _id: req.params.id })
             .then(() => {
               res.status(200).json({ message: "Livre supprimé!" });
@@ -109,18 +119,23 @@ exports.getRatings = (req, res) => {
 };
 
 exports.postRating = (req, res) => {
+  // Récupérer l'ID de l'utilisateur et la note donnée.
   const userIdRatings = req.body.userId;
   const grade = req.body.rating;
 
+  // Recherche le livre correspondant à l'ID fourni dans la requête.
   Book.findOne({ _id: req.params.id })
     .then((book) => {
+      // Vérifier si l'utilisateur a déjà soumis une évaluation pour ce livre.
       const alreadyRated = book.ratings.find(
         (rating) => rating.userId === userIdRatings
       );
 
+      // Si l'utilisateur a déjà évalué le livre ou si l'ID de l'utilisateur ne correspond pas à celui fourni dans la requête, renvoyer un message d'erreur.
       if (alreadyRated || req.auth.userId !== userIdRatings) {
         res.status(403).json({ message: "non autorisé" });
       } else {
+        // Calculer la note moyenne du livre en utilisant les notes précédentes et la note actuelle.
         const totalRating = book.ratings.reduce(
           (acc, rating) => acc + rating.grade,
           0
@@ -128,11 +143,13 @@ exports.postRating = (req, res) => {
         const averageRating = parseFloat(
           ((totalRating + grade) / (book.ratings.length + 1)).toFixed(2)
         );
+        // Mettre à jour la note moyenne du livre dans la base de données.
         book.averageRating = averageRating;
         Book.updateOne(
           { _id: req.params.id },
           {
             averageRating: averageRating,
+            // Ajoute la nouvelle note aux notes existantes pour ce livre.
             $push: { ratings: { userId: userIdRatings, grade: grade } },
           }
         )

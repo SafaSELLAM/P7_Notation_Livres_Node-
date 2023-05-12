@@ -6,14 +6,17 @@ const MIME_TYPES = {
   "image/jpeg": "jpg",
   "image/png": "png",
 };
-
+//onfigure le stockage de l'image : stockage sur le disque dur
 const storage = multer.diskStorage({
+  //défini le répértoire pour stocker l'image
   destination: (req, file, callback) => {
     callback(null, "images");
   },
   filename: (req, file, callback) => {
+    //renomme le fichier en remplaçant les espaces par des underscores
     const name = file.originalname.split(" ").join("_");
     const extension = MIME_TYPES[file.mimetype];
+    //timestamp unique + type d'image
     callback(null, name + Date.now() + "." + extension);
   },
 });
