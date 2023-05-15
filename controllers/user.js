@@ -39,12 +39,18 @@ exports.login = (req, res, next) => {
           //si email et mdp corects, crée un token JWT et envoit le dans la réponse
           res.status(200).json({
             userId: user._id,
-            token: jwt.sign({ userId: user._id }, "RANDOM_TOKEN_SECRET", {
-              expiresIn: "24h",
-            }),
+            //sign pour génèrer un nouveau token JWT
+            token: jwt.sign(
+              { userId: user._id },
+              //deuxième argument est une clé secrète
+              process.env.RANDOM_TOKEN_SECRET,
+              {
+                expiresIn: "24h",
+              }
+            ),
           });
         })
-        .catch((error) => console.log(error));
+        .catch((error) => res.status(500).json({ error }));
     })
-    .catch((error) => console.log(error));
+    .catch((error) => res.status(500).json({ error }));
 };
