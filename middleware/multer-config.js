@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage: storage }).single("image");
+const upload = multer({ storage: storage }).single("image"); //gère uniquement telechargements de fichier image
 
 //  redimension l'image
 const resizeImage = async (req, res, next) => {
