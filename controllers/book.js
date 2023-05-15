@@ -10,7 +10,7 @@ exports.createBook = (req, res, next) => {
 
   const book = new Book({
     ...bookObject,
-    //On s'assure de l'authentification du user
+    //On récupère le user id vérifié
     userId: req.auth.userId,
     // Enregistre l'URL de l'image en utilisant le protocole, le nom d'hôte et le nom de fichier généré
     imageUrl: `${req.protocol}://${req.get("host")}/images/${
@@ -23,7 +23,6 @@ exports.createBook = (req, res, next) => {
       res.status(201).json({ message: "Livre ajouté!" });
     })
     .catch((error) => {
-      console.log(error);
       res.status(401).json({ error });
     });
 };
@@ -31,7 +30,7 @@ exports.createBook = (req, res, next) => {
 exports.getAllBooks = (req, res) => {
   Book.find()
     .then((books) => res.status(200).json(books))
-    .catch((error) => console.log(error));
+    .catch((error) => res.status(404).json({ error }));
 };
 
 exports.getOneBook = (req, res) => {
