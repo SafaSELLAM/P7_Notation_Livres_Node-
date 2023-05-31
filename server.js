@@ -36,7 +36,7 @@ const errorHandler = (error) => {
       throw error;
   }
 };
-
+// créer server http et lire app definie dans le fichier app.
 const server = http.createServer(app);
 
 server.on("error", errorHandler);
